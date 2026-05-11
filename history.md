@@ -1,3 +1,9 @@
+> 有时候，我挺怀念过去的。
+>
+> Sometimes, I really miss the past.
+
+---
+
 倘若灵魂存在，它究竟有多重？
 
 If the soul exists, how much does it weigh?
