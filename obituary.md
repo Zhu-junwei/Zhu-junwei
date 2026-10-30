@@ -12,7 +12,7 @@
 
 > **出生日期**: {{BIRTH_DATE}}
 
-> **死亡日期**: {{DEATH_DATE}}（{{DEATH_TYPE}}）
+> **死亡日期**: {{DEATH_DATE}}{{DEATH_DETAIL}}
 
 > **最后存活时间**: {{LAST_RUN}} (UTC+8)
 
