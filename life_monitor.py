@@ -47,6 +47,7 @@ def generate_alive_content(last_run, days, scan_time):
     lines.append("")
     lines.append(f"🟢 上次存活时间: {last_run.strftime('%Y-%m-%d %H:%M:%S')}")
     lines.append(f"距上次执行: {days} 天")
+    lines.append(f"更新时间: {scan_time}")
     return "\n".join(lines)
 
 
@@ -91,6 +92,8 @@ def generate_obituary_content(last_run, days, scan_time):
     lines.append(f"> **距上次执行**: {days} 天")
     lines.append("")
     lines.append("超过 7 天未检测到生命体征，按协议发布讣告。")
+    lines.append("")
+    lines.append(f"更新时间: {scan_time}")
     return "\n".join(lines)
 
 
