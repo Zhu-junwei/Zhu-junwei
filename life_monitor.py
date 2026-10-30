@@ -42,7 +42,9 @@ def now():
 def generate_alive_content(last_run, days, scan_time):
     """生成正常状态下的 README 内容"""
     lines = []
-    lines.append(f"上次存活时间: {last_run.strftime('%Y-%m-%d %H:%M:%S')}")
+    lines.append("# 生命监测")
+    lines.append("")
+    lines.append(f"🟢 上次存活时间: {last_run.strftime('%Y-%m-%d %H:%M:%S')}")
     lines.append(f"距上次执行: {days} 天")
     return "\n".join(lines)
 
@@ -50,7 +52,9 @@ def generate_alive_content(last_run, days, scan_time):
 def generate_obituary_content(last_run, days, scan_time):
     """生成讣告内容"""
     lines = []
-    lines.append(f"上次存活时间: {last_run.strftime('%Y-%m-%d %H:%M:%S')}")
+    lines.append("# 生命监测")
+    lines.append("")
+    lines.append(f"⚫ 上次存活时间: {last_run.strftime('%Y-%m-%d %H:%M:%S')}")
     lines.append(f"距上次执行: {days} 天")
     lines.append("")
     lines.append(f"超过 {MAX_DAYS} 天未检测到生命体征，已发布讣告。")
