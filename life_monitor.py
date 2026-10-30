@@ -43,11 +43,7 @@ def now():
 def generate_alive_content(last_run, days, scan_time):
     """生成正常状态下的 README 内容"""
     lines = []
-    lines.append("# 我还活着吗？")
-    lines.append("")
     lines.append(f"🟢 上次存活时间: {last_run.strftime('%Y-%m-%d %H:%M:%S')}")
-    lines.append("")
-    lines.append(f"距上次执行: {days} 天")
     lines.append("")
     lines.append(f"更新时间: {scan_time}")
     return "\n".join(lines)
@@ -60,8 +56,6 @@ def generate_obituary_content(last_run, days, scan_time):
     age = death_date.year - birth.year - ((death_date.month, death_date.day) < (birth.month, birth.day))
 
     lines = []
-    lines.append("# 我还活着吗？")
-    lines.append("")
     lines.append("## ⚫ 讣告")
     lines.append("")
     lines.append("```")
