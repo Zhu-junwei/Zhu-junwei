@@ -16,7 +16,7 @@
 
 > **最后存活时间**: {{LAST_RUN}} (UTC+8)
 
-> **距上次执行**: {{DAYS}} 天
+{{DAYS_LINE}}
 
 {{DEATH_REASON}}
 

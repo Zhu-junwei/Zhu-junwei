@@ -51,10 +51,12 @@ def generate_obituary_content(last_run, days, scan_time, force_death=False):
         death_date = scan_time.date()
         death_detail = ""
         death_reason = "手动确认死亡。"
+        days_line = ""
     else:
         death_date = (last_run + datetime.timedelta(days=MAX_DAYS)).date()
         death_detail = f"（最后手动执行后第 {MAX_DAYS} 天（估算））"
         death_reason = f"超过 {MAX_DAYS} 天未检测到生命体征，按协议发布讣告。"
+        days_line = f"> **距上次执行**: {days} 天"
     age = death_date.year - birth.year - ((death_date.month, death_date.day) < (birth.month, birth.day))
 
     with open(os.path.join(BASE_DIR, "obituary.md"), "r", encoding="utf-8") as f:
@@ -67,10 +69,10 @@ def generate_obituary_content(last_run, days, scan_time, force_death=False):
         "{{AGE}}": str(age),
         "{{MAX_DAYS}}": str(MAX_DAYS),
         "{{LAST_RUN}}": last_run.strftime('%Y-%m-%d %H:%M:%S'),
-        "{{DAYS}}": str(days),
         "{{SCAN_TIME}}": scan_time.strftime('%Y-%m-%d %H:%M:%S'),
         "{{DEATH_DETAIL}}": death_detail,
         "{{DEATH_REASON}}": death_reason,
+        "{{DAYS_LINE}}": days_line,
     }
 
     for key, value in replacements.items():
