@@ -1,0 +1,48 @@
+name: Life Monitor
+
+on:
+  schedule:
+    # 北京时间每天 23:00 = UTC 15:00
+    - cron: '0 15 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: '运行模式'
+        required: false
+        default: 'check'
+        type: choice
+        options:
+          - check
+          - record
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Run life monitor
+        id: monitor
+        run: |
+          if [ "${{ github.event.inputs.mode }}" = "record" ]; then
+            python life_monitor.py
+          else
+            python life_monitor.py --auto
+          fi
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md .last_run
+          git diff --cached --quiet || git commit -m "life monitor: ${{ github.event.inputs.mode == 'record' && 'manual check-in' || 'auto check' }}"
+          git push
