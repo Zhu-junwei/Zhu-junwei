@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""
-生命监测系统 - Life Monitor System
-
-每次运行本脚本 = 一次「手动打卡」，记录当前时间。
-如果距上次打卡超过 7 天，则在 README 中发布「讣告」。
-定时任务每天 23:00 北京时间自动运行，用于检测系统是否停滞。
-"""
+"""生命监测系统"""
 
 import os
 import datetime
@@ -14,12 +8,12 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATE_FILE = os.path.join(BASE_DIR, ".last_run")
 README_PATH = os.path.join(BASE_DIR, "README.md")
 
-MAX_DAYS = 7  # 最大间隔天数
-BIRTH_DATE = datetime.date(1995, 4, 16)  # 出生日期
+MAX_DAYS = 7
+BIRTH_DATE = datetime.date(1995, 4, 16)
+BJ = datetime.timezone(datetime.timedelta(hours=8))
 
 
 def read_last_run():
-    """读取上次运行时间"""
     if not os.path.exists(STATE_FILE):
         return None
     try:
@@ -34,12 +28,8 @@ def read_last_run():
 
 
 def write_last_run(dt):
-    """写入当前运行时间"""
     with open(STATE_FILE, "w", encoding="utf-8") as f:
         f.write(dt.isoformat())
-
-
-BJ = datetime.timezone(datetime.timedelta(hours=8))  # 北京时间 UTC+8
 
 
 def now():
@@ -47,22 +37,25 @@ def now():
 
 
 def generate_alive_content(last_run, days, scan_time):
-    """生成正常状态下的 README 内容"""
-    lines = []
-    lines.append(f"🟢 上次存活时间: {last_run.strftime('%Y-%m-%d %H:%M:%S')} (UTC+8)")
-    lines.append("")
-    lines.append(f"更新时间: {scan_time} (UTC+8)")
+    lines = [
+        f"🟢 上次存活时间: {last_run.strftime('%Y-%m-%d %H:%M:%S')} (UTC+8)",
+        "",
+        f"更新时间: {scan_time.strftime('%Y-%m-%d %H:%M:%S')} (UTC+8)",
+    ]
     return "\n".join(lines)
 
 
-def generate_obituary_content(last_run, days, scan_time):
-    """从模板读取并替换占位符生成正式讣告内容"""
-    death_date = (last_run + datetime.timedelta(days=MAX_DAYS)).date()
+def generate_obituary_content(last_run, days, scan_time, force_death=False):
     birth = BIRTH_DATE
+    if force_death:
+        death_date = scan_time.date()
+        death_detail = ""
+    else:
+        death_date = (last_run + datetime.timedelta(days=MAX_DAYS)).date()
+        death_detail = f"（最后手动执行后第 {MAX_DAYS} 天（估算））"
     age = death_date.year - birth.year - ((death_date.month, death_date.day) < (birth.month, birth.day))
 
-    template_path = os.path.join(BASE_DIR, "obituary.md")
-    with open(template_path, "r", encoding="utf-8") as f:
+    with open(os.path.join(BASE_DIR, "obituary.md"), "r", encoding="utf-8") as f:
         content = f.read()
 
     replacements = {
@@ -72,7 +65,8 @@ def generate_obituary_content(last_run, days, scan_time):
         "{{MAX_DAYS}}": str(MAX_DAYS),
         "{{LAST_RUN}}": last_run.strftime('%Y-%m-%d %H:%M:%S'),
         "{{DAYS}}": str(days),
-        "{{SCAN_TIME}}": scan_time,
+        "{{SCAN_TIME}}": scan_time.strftime('%Y-%m-%d %H:%M:%S'),
+        "{{DEATH_DETAIL}}": death_detail,
     }
 
     for key, value in replacements.items():
@@ -89,9 +83,6 @@ def run():
     scan_time = now()
     last_run = read_last_run()
 
-    # 手动模式：先打卡更新时间戳，再判断（间隔为0，刚复活）
-    # 自动模式：不更新时间戳，基于旧时间判断
-    # 强制死亡：写入 8 天前的时间，触发讣告
     if force_death:
         fake_past = scan_time - datetime.timedelta(days=MAX_DAYS + 1)
         write_last_run(fake_past)
@@ -101,25 +92,22 @@ def run():
         last_run = scan_time
 
     if last_run is None:
-        # 首次运行
         days = 0
-        content = generate_alive_content(scan_time, days, scan_time.strftime('%Y-%m-%d %H:%M:%S'))
+        content = generate_alive_content(scan_time, days, scan_time)
     else:
         days = (scan_time - last_run).days
         if days > MAX_DAYS:
             print(f"⚠️  距上次手动执行已过去 {days} 天，超过 {MAX_DAYS} 天阈值！")
-            content = generate_obituary_content(last_run, days, scan_time.strftime('%Y-%m-%d %H:%M:%S'))
+            content = generate_obituary_content(last_run, days, scan_time, force_death)
         else:
             print(f"✅ 距上次手动执行 {days} 天，在 {MAX_DAYS} 天阈值内。")
-            content = generate_alive_content(last_run, days, scan_time.strftime('%Y-%m-%d %H:%M:%S'))
+            content = generate_alive_content(last_run, days, scan_time)
 
     with open(README_PATH, "w", encoding="utf-8") as f:
         f.write(content)
 
-    print(f"📝 README.md 已更新: {README_PATH}")
-    print(f"   上次执行: {last_run.strftime('%Y-%m-%d %H:%M:%S') if last_run else '首次'}")
-    print(f"   间隔: {days} 天 | 阈值: {MAX_DAYS} 天")
-    print(f"   模式: {'自动检查' if auto_mode else '手动打卡'}")
+    print(f"📝 README.md 已更新")
+    print(f"   间隔: {days} 天 | 模式: {'自动检查' if auto_mode else ('强制死亡' if force_death else '手动打卡')}")
     print(f"   状态: {'讣告' if last_run and days > MAX_DAYS else '正常'}")
 
 
