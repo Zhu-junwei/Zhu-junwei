@@ -5,6 +5,15 @@ on:
     # 北京时间每天 23:00 = UTC 15:00
     - cron: '0 15 * * *'
   workflow_dispatch:
+    inputs:
+      mode:
+        description: '选择运行模式'
+        required: true
+        type: choice
+        options:
+          - 签到
+          - 检查
+          - 死亡
 
 jobs:
   monitor:
@@ -23,10 +32,19 @@ jobs:
 
       - name: Run life monitor
         run: |
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            python life_monitor.py --auto
-          else
+          MODE="${{ github.event.inputs.mode }}"
+          if [ "$MODE" = "签到" ]; then
             python life_monitor.py
+          elif [ "$MODE" = "检查" ]; then
+            python life_monitor.py --auto
+          elif [ "$MODE" = "死亡" ]; then
+            python -c "
+import datetime
+dt = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))) - datetime.timedelta(days=8)
+with open('.last_run', 'w') as f:
+    f.write(dt.isoformat())
+"
+            python life_monitor.py --auto
           fi
 
       - name: Commit and push
@@ -34,5 +52,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add README.md .last_run
-          git diff --cached --quiet || git commit -m "life monitor: ${{ github.event_name == 'schedule' && 'auto check' || 'manual check-in' }}"
+          git diff --cached --quiet || git commit -m "life monitor: ${{ github.event.inputs.mode }}"
           git push
