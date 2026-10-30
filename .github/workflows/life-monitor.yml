@@ -12,7 +12,6 @@ on:
         type: choice
         options:
           - 签到
-          - 检查
           - 死亡
 
 jobs:
@@ -35,16 +34,8 @@ jobs:
           MODE="${{ github.event.inputs.mode }}"
           if [ "$MODE" = "签到" ]; then
             python life_monitor.py
-          elif [ "$MODE" = "检查" ]; then
-            python life_monitor.py --auto
           elif [ "$MODE" = "死亡" ]; then
-            python -c "
-import datetime
-dt = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))) - datetime.timedelta(days=8)
-with open('.last_run', 'w') as f:
-    f.write(dt.isoformat())
-"
-            python life_monitor.py --auto
+            python life_monitor.py --force-death
           fi
 
       - name: Commit and push

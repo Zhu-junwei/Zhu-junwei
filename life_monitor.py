@@ -84,15 +84,20 @@ def generate_obituary_content(last_run, days, scan_time):
 def run():
     import sys
     auto_mode = "--auto" in sys.argv
+    force_death = "--force-death" in sys.argv
 
     scan_time = now()
     last_run = read_last_run()
 
     # 手动模式：先打卡更新时间戳，再判断（间隔为0，刚复活）
     # 自动模式：不更新时间戳，基于旧时间判断
-    if not auto_mode:
+    # 强制死亡：写入 8 天前的时间，触发讣告
+    if force_death:
+        fake_past = scan_time - datetime.timedelta(days=MAX_DAYS + 1)
+        write_last_run(fake_past)
+        last_run = fake_past
+    elif not auto_mode:
         write_last_run(scan_time)
-        # 手动打卡后，last_run 就是现在，间隔为 0
         last_run = scan_time
 
     if last_run is None:
