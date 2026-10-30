@@ -9,7 +9,7 @@ STATE_FILE = os.path.join(BASE_DIR, ".last_run")
 README_PATH = os.path.join(BASE_DIR, "README.md")
 
 MAX_DAYS = 7
-BIRTH_DATE = datetime.date(1995, 4, 16)
+BIRTH_DATE = datetime.date(1995, 4, 23)
 BJ = datetime.timezone(datetime.timedelta(hours=8))
 
 
