@@ -36,16 +36,19 @@ def write_last_run(dt):
         f.write(dt.isoformat())
 
 
+BJ = datetime.timezone(datetime.timedelta(hours=8))  # 北京时间 UTC+8
+
+
 def now():
-    return datetime.datetime.now()
+    return datetime.datetime.now(BJ)
 
 
 def generate_alive_content(last_run, days, scan_time):
     """生成正常状态下的 README 内容"""
     lines = []
-    lines.append(f"🟢 上次存活时间: {last_run.strftime('%Y-%m-%d %H:%M:%S')}")
+    lines.append(f"🟢 上次存活时间: {last_run.strftime('%Y-%m-%d %H:%M:%S')} (UTC+8)")
     lines.append("")
-    lines.append(f"更新时间: {scan_time}")
+    lines.append(f"更新时间: {scan_time} (UTC+8)")
     return "\n".join(lines)
 
 
@@ -72,13 +75,13 @@ def generate_obituary_content(last_run, days, scan_time):
     lines.append("")
     lines.append(f"> **死亡日期**: {death_date.strftime('%Y-%m-%d')}（最后手动执行后第 {MAX_DAYS} 天）")
     lines.append("")
-    lines.append(f"> **最后存活时间**: {last_run.strftime('%Y-%m-%d %H:%M:%S')}")
+    lines.append(f"> **最后存活时间**: {last_run.strftime('%Y-%m-%d %H:%M:%S')} (UTC+8)")
     lines.append("")
     lines.append(f"> **距上次执行**: {days} 天")
     lines.append("")
     lines.append("超过 7 天未检测到生命体征，按协议发布讣告。")
     lines.append("")
-    lines.append(f"更新时间: {scan_time}")
+    lines.append(f"更新时间: {scan_time} (UTC+8)")
     return "\n".join(lines)
 
 
