@@ -2,8 +2,7 @@ name: Life Monitor
 
 on:
   schedule:
-    # 北京时间每天 23:00 = UTC 15:00
-    - cron: '59 19 * * *'
+    - cron: '00 19 * * *'
   workflow_dispatch:
     inputs:
       mode:
