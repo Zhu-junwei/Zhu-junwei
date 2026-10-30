@@ -10,6 +10,8 @@
     享年 {{AGE}} 岁
 ```
 
+> 死亡只是时间的定格。
+
 > **出生日期**: {{BIRTH_DATE}}（{{BIRTH_LUNAR}}）
 
 > **死亡日期**: {{DEATH_DATE}}{{DEATH_DETAIL}}
