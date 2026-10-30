@@ -15,6 +15,7 @@ STATE_FILE = os.path.join(BASE_DIR, ".last_run")
 README_PATH = os.path.join(BASE_DIR, "README.md")
 
 MAX_DAYS = 7  # 最大间隔天数
+BIRTH_DATE = datetime.date(1995, 4, 16)  # 出生日期
 
 
 def read_last_run():
@@ -50,14 +51,46 @@ def generate_alive_content(last_run, days, scan_time):
 
 
 def generate_obituary_content(last_run, days, scan_time):
-    """生成讣告内容"""
+    """生成正式讣告内容"""
+    death_date = (last_run + datetime.timedelta(days=MAX_DAYS)).date()
+    birth = BIRTH_DATE
+    age = death_date.year - birth.year - ((death_date.month, death_date.day) < (birth.month, birth.day))
+
     lines = []
     lines.append("# 生命监测")
     lines.append("")
-    lines.append(f"⚫ 上次存活时间: {last_run.strftime('%Y-%m-%d %H:%M:%S')}")
-    lines.append(f"距上次执行: {days} 天")
+    lines.append("## ⚫ 讣告")
     lines.append("")
-    lines.append(f"超过 {MAX_DAYS} 天未检测到生命体征，已发布讣告。")
+    lines.append("```")
+    lines.append("        _,.-'\"\"\"\"\"\"\"\"\"-.,_")
+    lines.append("      ,'                       `,")
+    lines.append("     /                           \\")
+    lines.append("    /                             \\")
+    lines.append("   /                               \\")
+    lines.append("  /                                 \\")
+    lines.append(" |                                   |")
+    lines.append(" |         R   I   P                 |")
+    lines.append(" |                                   |")
+    lines.append(" |                                   |")
+    lines.append("  \\                                 /")
+    lines.append("   \\                               /")
+    lines.append("    \\                             /")
+    lines.append("     \\                           /")
+    lines.append("      `.                       ,'")
+    lines.append("        `-..__           __..-'")
+    lines.append("            `\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"`")
+    lines.append("")
+    lines.append(f"    {birth.strftime('%Y-%m-%d')}  —  {death_date.strftime('%Y-%m-%d')}")
+    lines.append("")
+    lines.append(f"    享年 {age} 岁")
+    lines.append("```")
+    lines.append("")
+    lines.append(f"> **出生日期**: {birth.strftime('%Y-%m-%d')}")
+    lines.append(f"> **死亡日期**: {death_date.strftime('%Y-%m-%d')}（最后手动执行后第 {MAX_DAYS} 天）")
+    lines.append(f"> **最后存活时间**: {last_run.strftime('%Y-%m-%d %H:%M:%S')}")
+    lines.append(f"> **距上次执行**: {days} 天")
+    lines.append("")
+    lines.append("超过 7 天未检测到生命体征，按协议发布讣告。")
     return "\n".join(lines)
 
 
