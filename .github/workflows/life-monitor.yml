@@ -35,12 +35,17 @@ jobs:
             python life_monitor.py
           elif [ "$MODE" = "死亡" ]; then
             python life_monitor.py --force-death
+          else
+            # 定时触发：自动签到
+            python life_monitor.py
           fi
 
       - name: Commit and push
         run: |
+          MODE="${{ github.event.inputs.mode }}"
+          MSG="${MODE:-自动签到}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add README.md .last_run
-          git diff --cached --quiet || git commit -m "life monitor: ${{ github.event.inputs.mode }}"
+          git diff --cached --quiet || git commit -m "life monitor: $MSG"
           git push

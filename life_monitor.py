@@ -48,11 +48,13 @@ def generate_alive_content(last_run, days, scan_time):
 def generate_obituary_content(last_run, days, scan_time, force_death=False):
     birth = BIRTH_DATE
     if force_death:
+        # 手动确认死亡：死亡日期为当前扫描日期，保留真实最后存活时间
         death_date = scan_time.date()
         death_detail = ""
         death_reason = "手动确认死亡。"
-        days_line = ""
+        days_line = f"> **距上次执行**: {days} 天"
     else:
+        # 自动判定死亡：超过阈值，估算死亡日期
         death_date = (last_run + datetime.timedelta(days=MAX_DAYS)).date()
         death_detail = f"（最后手动执行后第 {MAX_DAYS} 天（估算））"
         death_reason = f"超过 {MAX_DAYS} 天未检测到生命体征，按协议发布讣告。"
@@ -91,19 +93,29 @@ def run():
     last_run = read_last_run()
 
     if force_death:
-        fake_past = scan_time - datetime.timedelta(days=MAX_DAYS + 1)
-        write_last_run(fake_past)
-        last_run = fake_past
+        # 死亡模式：不修改 .last_run，保留真实的上次存活时间
+        # 如果没有历史记录，用当前时间兜底
+        if last_run is None:
+            last_run = scan_time
     elif not auto_mode:
+        # 签到模式（含定时自动签到）：更新 .last_run 为当前时间
         write_last_run(scan_time)
         last_run = scan_time
 
     if last_run is None:
         days = 0
-        content = generate_alive_content(scan_time, days, scan_time)
+        if force_death:
+            # 没有历史记录但手动确认死亡
+            content = generate_obituary_content(scan_time, days, scan_time, force_death)
+        else:
+            content = generate_alive_content(scan_time, days, scan_time)
     else:
         days = (scan_time - last_run).days
-        if days > MAX_DAYS:
+        if force_death:
+            # 手动确认死亡：直接生成讣告，不经过阈值判断
+            print(f"💀 手动确认死亡。最后存活时间: {last_run.strftime('%Y-%m-%d %H:%M:%S')}")
+            content = generate_obituary_content(last_run, days, scan_time, force_death)
+        elif days > MAX_DAYS:
             print(f"⚠️  距上次手动执行已过去 {days} 天，超过 {MAX_DAYS} 天阈值！")
             content = generate_obituary_content(last_run, days, scan_time, force_death)
         else:
