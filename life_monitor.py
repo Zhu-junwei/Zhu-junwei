@@ -98,7 +98,7 @@ def run():
         if last_run is None:
             last_run = scan_time
     elif not auto_mode:
-        # 签到模式（含定时自动签到）：更新 .last_run 为当前时间
+        # 手动签到：更新 .last_run 为当前时间
         write_last_run(scan_time)
         last_run = scan_time
 

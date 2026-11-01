@@ -36,8 +36,8 @@ jobs:
           elif [ "$MODE" = "死亡" ]; then
             python life_monitor.py --force-death
           else
-            # 定时触发：自动签到
-            python life_monitor.py
+            # 定时触发：只检查不签到，超过7天自动宣告死亡
+            python life_monitor.py --auto
           fi
 
       - name: Commit and push
