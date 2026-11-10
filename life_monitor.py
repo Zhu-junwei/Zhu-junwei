@@ -117,6 +117,22 @@ def generate_obituary_content(last_run, days, scan_time, force_death=False, deat
     return content
 
 
+def read_current_state():
+    """读取 README.md 当前状态，返回 'dead' / 'alive' / None（无法判断）"""
+    if not os.path.exists(README_PATH):
+        return None
+    try:
+        with open(README_PATH, "r", encoding="utf-8") as f:
+            content = f.read()
+    except Exception:
+        return None
+    if "🪦" in content or "R  I  P" in content:
+        return "dead"
+    if "🟢" in content:
+        return "alive"
+    return None
+
+
 def run():
     import sys
     auto_mode = "--auto" in sys.argv
@@ -125,6 +141,7 @@ def run():
     scan_time = now()
     last_run = read_last_run()
     death_info = get_death_info()
+    current_state = read_current_state()
 
     if force_death:
         # 死亡模式：不修改 .last_run，保留真实的上次存活时间
@@ -161,6 +178,11 @@ def run():
         elif days > MAX_DAYS:
             print(f"⚠️  距上次手动执行已过去 {days} 天，超过 {MAX_DAYS} 天阈值！")
             content = generate_obituary_content(last_run, days, scan_time, force_death)
+        elif auto_mode and current_state == "dead":
+            # 自动任务不覆盖已存在的讣告（可能是 GitHub 手动提交的）
+            print(f"🔒 检测到 README 已有讣告，自动任务跳过覆盖。")
+            with open(README_PATH, "r", encoding="utf-8") as f:
+                content = f.read()
         else:
             print(f"✅ 距上次手动执行 {days} 天，在 {MAX_DAYS} 天阈值内。")
             content = generate_alive_content(last_run, days, scan_time)
