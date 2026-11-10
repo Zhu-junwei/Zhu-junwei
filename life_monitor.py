@@ -170,8 +170,13 @@ def run():
     else:
         days = (scan_time - last_run).days
         if death_confirmed:
-            print(f"💀 死亡已确认。最后存活时间: {last_run.strftime('%Y-%m-%d %H:%M:%S')}")
-            content = generate_obituary_content(last_run, days, scan_time, death_info=death_info)
+            if auto_mode and current_state == "alive":
+                # GitHub 手动签到后 README 已是存活，信任 README 内容
+                print(f"✅ README 已是存活状态，跳过死亡标记覆盖。")
+                content = generate_alive_content(last_run, days, scan_time)
+            else:
+                print(f"💀 死亡已确认。最后存活时间: {last_run.strftime('%Y-%m-%d %H:%M:%S')}")
+                content = generate_obituary_content(last_run, days, scan_time, death_info=death_info)
         elif force_death:
             print(f"💀 手动确认死亡。最后存活时间: {last_run.strftime('%Y-%m-%d %H:%M:%S')}")
             content = generate_obituary_content(last_run, days, scan_time, force_death)
@@ -193,7 +198,7 @@ def run():
     print(f"📝 README.md 已更新")
     mode_str = '自动检查' if auto_mode else ('强制死亡' if force_death else '手动打卡')
     print(f"   间隔: {days} 天 | 模式: {mode_str}")
-    is_dead = death_confirmed or (last_run is not None and days > MAX_DAYS)
+    is_dead = (death_confirmed and not (auto_mode and current_state == "alive")) or (last_run is not None and days > MAX_DAYS)
     print(f"   状态: {'讣告' if is_dead else '正常'}")
 
 
