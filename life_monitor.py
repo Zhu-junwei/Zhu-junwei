@@ -2,11 +2,13 @@
 """生命监测系统"""
 
 import os
+import json
 import datetime
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATE_FILE = os.path.join(BASE_DIR, ".last_run")
 README_PATH = os.path.join(BASE_DIR, "README.md")
+STATUS_PATH = os.path.join(BASE_DIR, "status.json")
 
 MAX_DAYS = 7
 BIRTH_DATE = datetime.date(1995, 4, 23)
@@ -99,6 +101,24 @@ def read_current_state():
     return None
 
 
+def write_status_json(status, last_checkin, updated_at, days, death_date=None, age_at_death=None, death_reason=None):
+    data = {
+        "name": "朱俊伟",
+        "birth_date": BIRTH_DATE.strftime('%Y-%m-%d'),
+        "birth_lunar": "农历一九九五年三月廿四",
+        "status": status,
+        "last_checkin": last_checkin.isoformat() if last_checkin else None,
+        "updated_at": updated_at.isoformat(),
+        "days_since_checkin": days,
+        "max_days": MAX_DAYS,
+        "death_date": death_date,
+        "age_at_death": age_at_death,
+        "death_reason": death_reason,
+    }
+    with open(STATUS_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+
 def run():
     import sys
     auto_mode = "--auto" in sys.argv
@@ -147,11 +167,40 @@ def run():
     with open(README_PATH, "w", encoding="utf-8") as f:
         f.write(content)
 
+    is_dead = "🪦" in content or "R  I  P" in content
+
+    # 写入 status.json
+    death_date_str = None
+    age_at_death_val = None
+    death_reason_str = None
+
+    if is_dead:
+        if force_death:
+            death_date_str = scan_time.date().isoformat()
+            death_reason_str = "手动确认死亡。"
+        elif days > MAX_DAYS:
+            death_date_str = (last_run + datetime.timedelta(days=MAX_DAYS)).date().isoformat()
+            death_reason_str = f"超过 {MAX_DAYS} 天未检测到生命体征，按协议发布讣告。"
+
+        if death_date_str:
+            dd = datetime.date.fromisoformat(death_date_str)
+            age_at_death_val = dd.year - BIRTH_DATE.year - ((dd.month, dd.day) < (BIRTH_DATE.month, BIRTH_DATE.day))
+
+    write_status_json(
+        "dead" if is_dead else "alive",
+        last_run,
+        scan_time,
+        days,
+        death_date_str,
+        age_at_death_val,
+        death_reason_str,
+    )
+
     print(f"📝 README.md 已更新")
     mode_str = '自动检查' if auto_mode else ('强制死亡' if force_death else '手动打卡')
     print(f"   间隔: {days} 天 | 模式: {mode_str}")
-    is_dead = "🪦" in content or "R  I  P" in content
     print(f"   状态: {'讣告' if is_dead else '正常'}")
+    print(f"📊 status.json 已更新")
 
 
 if __name__ == "__main__":
