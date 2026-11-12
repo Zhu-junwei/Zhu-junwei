@@ -2,12 +2,12 @@
   "name": "朱俊伟",
   "birth_date": "1995-04-23",
   "birth_lunar": "农历一九九五年三月廿四",
-  "status": "alive",
+  "status": "dead",
   "last_checkin": "2026-11-12T10:23:01.147136+08:00",
-  "updated_at": "2026-11-12T10:23:01.147136+08:00",
+  "updated_at": "2026-11-12T10:48:53.774816+08:00",
   "days_since_checkin": 0,
   "max_days": 7,
-  "death_date": null,
-  "age_at_death": null,
-  "death_reason": null
+  "death_date": "2026-11-12",
+  "age_at_death": 31,
+  "death_reason": "手动确认死亡。"
 }
