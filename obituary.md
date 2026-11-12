@@ -16,7 +16,7 @@
 
 > **死亡日期**: {{DEATH_DATE}}{{DEATH_DETAIL}}
 
-> **最后签到时间**: {{LAST_RUN}} (UTC+8)
+> **上次签到时间**: {{LAST_RUN}} (UTC+8)
 
 {{DAYS_LINE}}
 

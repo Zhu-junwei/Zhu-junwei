@@ -38,7 +38,7 @@ def now():
 
 def generate_alive_content(last_run, days, scan_time):
     lines = [
-        f"🟢 上次存活时间: {last_run.strftime('%Y-%m-%d %H:%M:%S')} (UTC+8)",
+        f"🟢 上次签到时间: {last_run.strftime('%Y-%m-%d %H:%M:%S')} (UTC+8)",
         "",
         f"更新时间: {scan_time.strftime('%Y-%m-%d %H:%M:%S')} (UTC+8)",
     ]
