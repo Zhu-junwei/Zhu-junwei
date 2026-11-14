@@ -51,4 +51,4 @@ jobs:
           git push
 
       - name: Purge jsDelivr cache
-        run: curl -X POST https://purge.jsdelivr.net/gh/Zhu-junwei/Zhu-junwei/status.json
+        run: curl https://purge.jsdelivr.net/gh/Zhu-junwei/Zhu-junwei/status.json
