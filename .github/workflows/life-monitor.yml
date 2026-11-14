@@ -49,3 +49,6 @@ jobs:
           git add README.md .last_run status.json
           git diff --cached --quiet || git commit -m "life monitor: $MSG"
           git push
+
+      - name: Purge jsDelivr cache
+        run: curl -X POST https://purge.jsdelivr.net/gh/Zhu-junwei/Zhu-junwei/status.json
